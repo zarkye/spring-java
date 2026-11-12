@@ -26,21 +26,26 @@ public class UserService {
 
     public Optional<UserCreationDTO> updateAvatar(UUID id, Map<String, Object> avatar) {
         return findById(id).map(existingUser -> {
-            if (avatar.containsKey("avatarUrl")) {
-                existingUser.setAvatar((String) avatar.get("avatarUrl"));
+            Object avatarValue = avatar.containsKey("avatarUrl")
+                    ? avatar.get("avatarUrl")
+                    : avatar.get("avatar");
+            if (avatarValue instanceof String avatarUrl) {
+                existingUser.setAvatar(avatarUrl);
             }
             return existingUser;
         });
     }
 
-    public Optional<UserCreationDTO> update(UUID id, UserCreationDTO user) {
-        for (int i = 0; i < users.size(); i++) {
-            if (users.get(i).getId().equals(id)) {
-                user.setId(id);
-                users.set(i, user);
-                return Optional.of(user);
-            }
+    public Optional<UserCreationDTO> update(UUID id, UserCreationDTO updateDate) {
+        Optional<UserCreationDTO> userOptional = findById(id);
+
+        if (userOptional.isPresent()) {
+            UserCreationDTO existingUser = userOptional.get();
+            existingUser.setName(updateDate.getName());
+            existingUser.setEmail(updateDate.getEmail());
+            return Optional.of(existingUser);
         }
+
         return Optional.empty();
     }
 

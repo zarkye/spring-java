@@ -59,7 +59,15 @@ public class UsersController {
 
     @PatchMapping("/{id}/avatar")
     @Operation(summary = "Atualização de avatar", description = "Atualiza o avatar do usuário específico com o url da imagem nova")
-    public ResponseEntity<UserCreationDTO> updateAvatar(@PathVariable UUID id, @RequestBody Map<String, Object> avatar) {
+    public ResponseEntity<UserCreationDTO> updateAvatar(
+            @PathVariable UUID id,
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Informe a nova URL do avatar.",
+                    content = @io.swagger.v3.oas.annotations.media.Content(
+                            mediaType = "application/json",
+                            schema = @io.swagger.v3.oas.annotations.media.Schema(
+                                    example = "{\"avatarUrl\":\"https://exemplo.com/avatar.png\"}")))
+            @RequestBody Map<String, Object> avatar) {
         return this.userService.updateAvatar(id, avatar).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 }
