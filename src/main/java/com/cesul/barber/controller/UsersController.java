@@ -1,15 +1,18 @@
 package com.cesul.barber.controller;
 
 
+import com.cesul.barber.dtos.AvatarUpdateDTO;
 import com.cesul.barber.dtos.UserCreationDTO;
 import com.cesul.barber.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/users")
@@ -28,9 +31,17 @@ public class UsersController {
         return ResponseEntity.ok(this.userService.getAllUsers());
     }
 
+    @GetMapping("/{id}")
+    @Operation(summary = "Buscar usuário", description = "Retorna um usuário pelo identificador")
+    public ResponseEntity<UserCreationDTO> getUser(@PathVariable UUID id) {
+        return this.userService.findById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
     @PostMapping
     @Operation(summary = "Criação de usuário", description = "Realiza a criação de um usuário")
-    public ResponseEntity<UserCreationDTO> create(@RequestBody UserCreationDTO user) {
+    public ResponseEntity<UserCreationDTO> create(@Valid @RequestBody UserCreationDTO user) {
         UserCreationDTO newUser = this.userService.create(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
     }
@@ -53,21 +64,18 @@ public class UsersController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Substituição do conteúdo do usuário", description = "Substituição completa de todo o conteúdo do usuário por um novo")
-    public ResponseEntity<UserCreationDTO> put(@PathVariable UUID id, @RequestBody UserCreationDTO user) {
+    public ResponseEntity<UserCreationDTO> put(@PathVariable UUID id, @Valid @RequestBody UserCreationDTO user) {
         return this.userService.update(id, user).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PatchMapping("/{id}/avatar")
-    @Operation(summary = "Atualização de avatar", description = "Atualiza o avatar do usuário específico com o url da imagem nova")
+    @Operation(summary = "Atualização de avatar", description = "Atualiza o avatar do usuário específico com a URL da nova imagem")
     public ResponseEntity<UserCreationDTO> updateAvatar(
             @PathVariable UUID id,
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Informe a nova URL do avatar.",
-                    content = @io.swagger.v3.oas.annotations.media.Content(
-                            mediaType = "application/json",
-                            schema = @io.swagger.v3.oas.annotations.media.Schema(
-                                    example = "{\"avatarUrl\":\"https://exemplo.com/avatar.png\"}")))
-            @RequestBody Map<String, Object> avatar) {
-        return this.userService.updateAvatar(id, avatar).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+            @Valid @RequestBody AvatarUpdateDTO avatar
+    ) {
+        return this.userService.updateAvatar(id, avatar)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }

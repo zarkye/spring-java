@@ -1,12 +1,25 @@
 package com.cesul.barber.dtos;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 import java.util.UUID;
 
 public class UserCreationDTO {
 
     private UUID id;
+
+    @NotBlank
+    @Size(max = 120)
     private String name;
+
+    @NotBlank
+    @Email
+    @Size(max = 254)
     private String email;
+
+    @Size(max = 2048)
     private String avatar;
 
     public String getName() {
@@ -24,10 +37,18 @@ public class UserCreationDTO {
     public void setEmail(String email) {
         this.email = email;
     }
-    public UUID getId() {return id;}
-    public void setId(UUID id) {this.id = id;}
 
-    public void setAvatar(String avatar) { this.avatar = avatar;}
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
 
     public String getAvatar() {
         return avatar;
